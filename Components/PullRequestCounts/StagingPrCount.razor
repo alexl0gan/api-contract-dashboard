@@ -1,0 +1,24 @@
+@using Newtonsoft.Json
+@inject HttpClient Http
+
+<div class="card" style="width: 18rem;">
+  <div class="card-body">
+    @prCount PRs in staging but not production
+  </div>
+</div>
+
+@functions {
+    private int prCount = 0;
+
+    protected override async Task OnInitAsync()
+    {
+        var res = await Http.SendAsync(RequestFactory.AllPrCountRequest());
+        var stringData = await res.Content.ReadAsStringAsync();
+
+        var data = JsonConvert.DeserializeObject<RepoMessage[]>(stringData);
+
+        prCount = data.Count(d => d.labels.Any(l => l.name == "cd/not-in-production") && !d.labels.Any(l => l.name == "cd/not-in-staging"));
+
+        Console.WriteLine(JsonConvert.SerializeObject(data));
+    }
+}

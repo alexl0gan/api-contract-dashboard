@@ -1,0 +1,37 @@
+@page "/pulls"
+
+@using Newtonsoft.Json
+@inject HttpClient Http
+
+<h2>Pull Requests</h2>
+
+@if (pullRequests == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @foreach (var pullRequest in pullRequests)
+    {
+        <div class="row">
+            <PullRequest title="@pullRequest.title" labels="@pullRequest.labels"/>
+        </div>
+        <br/>
+    }
+}
+
+@functions {
+
+    private RepoMessage[] pullRequests { get; set; }
+
+    protected override async Task OnInitAsync()
+    {
+        var res = await Http.SendAsync(RequestFactory.AllPrCountRequest());
+        var stringData = await res.Content.ReadAsStringAsync();
+
+        pullRequests = JsonConvert.DeserializeObject<RepoMessage[]>(stringData);
+
+        // Console.WriteLine(JsonConvert.SerializeObject(pullRequests));
+        Console.WriteLine(stringData);
+    }
+}
