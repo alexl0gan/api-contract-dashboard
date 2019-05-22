@@ -1,7 +1,7 @@
 @page "/pulls"
 
 @using Newtonsoft.Json
-@inject HttpClient Http
+@inject IPullRequestService PullRequestService
 
 <h2>Pull Requests</h2>
 
@@ -22,16 +22,10 @@ else
 
 @functions {
 
-    private RepoMessage[] pullRequests { get; set; }
+    private List<RepoMessage> pullRequests { get; set; }
 
     protected override async Task OnInitAsync()
     {
-        var res = await Http.SendAsync(RequestFactory.AllPrCountRequest());
-        var stringData = await res.Content.ReadAsStringAsync();
-
-        pullRequests = JsonConvert.DeserializeObject<RepoMessage[]>(stringData);
-
-        // Console.WriteLine(JsonConvert.SerializeObject(pullRequests));
-        Console.WriteLine(stringData);
+        pullRequests = await PullRequestService.GetAllOpenPullRequestsAsync();
     }
 }

@@ -1,5 +1,5 @@
 @using Newtonsoft.Json
-@inject HttpClient Http
+@inject IPullRequestService PullRequestService
 
 <div class="card" style="width: 18rem;">
   <div class="card-body">
@@ -8,15 +8,10 @@
 </div>
 
 @functions {
-    private int prCount = 0;
+    private int? prCount = 0;
 
     protected override async Task OnInitAsync()
     {
-        var res = await Http.SendAsync(RequestFactory.OpenPrCountRequest());
-        var stringData = await res.Content.ReadAsStringAsync();
-
-        var data = JsonConvert.DeserializeObject<RepoMessage[]>(stringData);
-
-        prCount = data.Length;
+        prCount = await PullRequestService.GetOpenPrCountAsync();
     }
 }
